@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <cstring>
+#define LISFDNUMS 5
 using namespace std;
 class tcp_server
 {
@@ -23,16 +24,8 @@ public:
         _addr.sin_port = htons(_port);
         _addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
-    void Start()
-    {
-        bind(_listenfd, (struct sockaddr *)&_addr, sizeof(_addr));
-        cout << "bind" << endl;
-        listen(_listenfd, 1);
-        cout << "listen" << endl;
-        sleep(1);
-        sockaddr_in temp;
-        socklen_t len = sizeof(temp);
-        int tmp = accept(_listenfd, (struct sockaddr *)&temp, &len);
+    void server(int tmp){
+       
         cout << "accept :" << tmp << endl;
         while (1)
         {
@@ -49,13 +42,36 @@ public:
             {
 
                 cout << "client close" << endl;
+                close(tmp);
                 break;
             }
             else
             {
                 cout << "other" << endl;
+                close(tmp);
                 break;
             }
+
+    }
+    }
+    void Start()
+    {
+        bind(_listenfd, (struct sockaddr *)&_addr, sizeof(_addr));
+        cout << "bind" << endl;
+        listen(_listenfd, LISFDNUMS);
+        cout << "listen" << endl;
+        while(1){
+             sockaddr_in temp;
+             socklen_t len = sizeof(temp);
+            int tmp = accept(_listenfd, (struct sockaddr *)&temp, &len);
+            if(tmp>0){
+                pid_t pid=fork();
+                if(pid==0){
+                    server(tmp);
+
+                }
+            }
+            sleep(1);
         }
 
     }
