@@ -28,14 +28,24 @@ public:
     }
     void Start()
     {
+        while (1)
+        {
+             std::string serverip = des_ip;
+    uint16_t serverport = des_port;
+        _sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        _addr.sin_family=AF_INET;
+        _addr.sin_port=htons(des_port);
+        _addr.sin_addr.s_addr=(inet_addr(des_ip));
+        
         if (connect(_sockfd,(struct sockaddr*)&_addr,sizeof(_addr)) != 0)
         {
             perror("connect fail!");
-            exit(1);
+           sleep(1);
+
+            continue;
         }
+
         cout<<"connect server success"<<endl;
-        while (1)
-        {
             cout<<"please enter: ";
             char buf[BUFSIZE];
             fgets(buf, sizeof(buf), stdin);
@@ -46,11 +56,16 @@ public:
             if (size > 0)
             {
                 cout << "server:" << buf ;
-            }
-            }else{
+            }else if(size==0){
+                cout<<"server close"<<endl;
                 break;
             }
-           
+            }else{
+                cout<<"server close"<<endl;
+                break;
+            }
+           close(_sockfd);
+           sleep(1);
         }
     }
     ~tcp_client()
